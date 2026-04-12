@@ -56,16 +56,19 @@ jobs:
     name: Build and push images
     needs: [validate-backend, validate-frontend]
     runs-on: ubuntu-latest
-    # Only run on pushes to main (not PRs)
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
 
     permissions:
       contents: read
-      packages: write   # needed to push to GHCR
+      packages: write
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+
+      # Lowercase the repo name — GHCR requires it, github.repository preserves case
+      - name: Set lowercase repo name
+        run: echo "REPO=${GITHUB_REPOSITORY,,}" >> $GITHUB_ENV
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
@@ -75,7 +78,7 @@ jobs:
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}  # automatically available
+          password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Build and push backend image
         uses: docker/build-push-action@v5
@@ -83,9 +86,8 @@ jobs:
           context: ./backend
           push: true
           tags: |
-            ghcr.io/${{ github.repository }}/backend:latest
-            ghcr.io/${{ github.repository }}/backend:${{ github.sha }}
-          # GitHub Actions cache makes rebuilds fast
+            ghcr.io/${{ env.REPO }}/backend:latest
+            ghcr.io/${{ env.REPO }}/backend:${{ github.sha }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
@@ -95,7 +97,7 @@ jobs:
           context: ./frontend
           push: true
           tags: |
-            ghcr.io/${{ github.repository }}/frontend:latest
-            ghcr.io/${{ github.repository }}/frontend:${{ github.sha }}
+            ghcr.io/${{ env.REPO }}/frontend:latest
+            ghcr.io/${{ env.REPO }}/frontend:${{ github.sha }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
