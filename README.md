@@ -16,3 +16,54 @@ All services run inside the docker bridge network. Only Nginx is exposed to the 
 **Containerized services** -- Each service runs on its own container. This ensures consistent environment across machines and clean isolation between services. Docker Compose ties everything together with a shared network. These services then communicate with each other using an internal DNS created by Docker using names like `backend`, `postgres` and `redis` instead of IPs.
 
 **Caching** -- Redis is used for caching strategy. At the current scale of this project, caching does provide a noticeable performance benefit. However, I just included it to understand how it works in real production systems. On a single request of logs for this application,the backend checks Redis. A cache hit returns data in under a millisecond. A cache miss queries Postgres and stores the result in Redis with a 60-second TTL. Write operations (`POST`, `DELETE`) invalidate the cache key immediately.
+
+## Tech Stack
+
+| Layer      | Technology          | Version |
+|------------|---------------------|---------|
+| Proxy      | Nginx               | 1.25    |
+| Frontend   | React + Vite        | 18 / 5  |
+| Backend    | Node.js + Express   | 20 / 4  |
+| Database   | PostgreSQL          | 16      |
+| Cache      | Redis               | 7       |
+| Runtime    | Docker + Compose    | v2      |
+| CI/CD      | GitHub Actions      | —       |
+| Registry   | GitHub Container Registry (GHCR) | — |
+
+---
+
+## Running this Project Locally
+### Prerequisites
+- Docker Engine
+- Docker Compose
+
+```bash
+git clone https://github.com/Diing54/devlog.git
+cd devlog
+```
+- Create the .env file and fill in your own values;
+
+```env
+POSTGRES_USER=
+POSTGRES_PASSWORD=
+POSTGRES_DB=
+DATABASE_URL=postgresql://devlog:change_me_in_production@postgres:5432/devlog_db
+REDIS_URL=redis://redis:6379
+```
+- Build images and start your services;
+
+```bash
+docker compose up --build
+```
+- Then open **http://localhost** in your browser.
+
+### Stopping this Project
+
+```bash
+# Stop containers, keep database volumes
+docker compose down
+
+# Stop containers and delete all persisted data
+docker compose down -v
+```
+
