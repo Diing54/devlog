@@ -1,11 +1,11 @@
-// In Docker: nginx proxies /api → backend:3000
-// In local dev: vite proxy forwards /api → localhost:3000
 const BASE = '/api';
 
-export async function getLogs() {
-  const res = await fetch(`${BASE}/logs`);
-  if (!res.ok) throw new Error(`GET /api/logs failed: ${res.status}`);
-  return res.json(); // { source: 'cache'|'database', data: [...] }
+// q is optional — pass empty string or omit for all logs
+export async function getLogs(q = '') {
+  const url = q ? `${BASE}/logs?q=${encodeURIComponent(q)}` : `${BASE}/logs`;
+  const res = await fetch(url);
+  if (!res.ok) throw new Error(`GET ${url} failed: ${res.status}`);
+  return res.json();
 }
 
 export async function createLog({ title, description, tags }) {
