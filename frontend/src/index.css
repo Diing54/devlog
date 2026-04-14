@@ -67,3 +67,16 @@ body { font-family: var(--font); background: var(--bg); color: var(--text); min-
 .empty-state      { text-align: center; padding: 2.5rem 0; }
 .empty-state p    { color: var(--text-muted); }
 .empty-hint       { font-size: 0.8rem; margin-top: 0.4rem; }
+
+/* Search */
+.search-wrapper    { display: flex; flex-direction: column; gap: 0.4rem; margin-bottom: 1rem; }
+.search-input-row  { position: relative; display: flex; align-items: center; }
+.search-icon       { position: absolute; left: 0.75rem; color: var(--text-muted); font-size: 1.1rem; pointer-events: none; }
+.search-input      { padding-left: 2.2rem; padding-right: 2.2rem; }
+.search-clear      { position: absolute; right: 0.75rem; background: none; border: none; color: var(--text-muted); cursor: pointer; font-size: 1.2rem; line-height: 1; padding: 0; transition: color 0.15s; }
+.search-clear:hover{ color: var(--red); }
+.search-meta       { font-size: 0.78rem; color: var(--text-muted); padding-left: 0.25rem; }
+
+/* Search highlighting */
+mark.highlight     { background: rgba(88, 166, 255, 0.2); color: inherit; border-radius: 2px; padding: 0 1px; }
+.tag-match         { background: rgba(88, 166, 255, 0.15); border-color: var(--accent) !important; color: var(--accent) !important; }

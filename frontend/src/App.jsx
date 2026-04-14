@@ -1,19 +1,25 @@
 import { useState, useEffect, useCallback } from 'react';
 import LogForm from './components/LogForm';
 import LogList from './components/LogList';
+import SearchBar from './components/SearchBar';
 import { getLogs, createLog, deleteLog } from './api';
+import { useDebounce } from './hooks/useDebounce';
 
 export default function App() {
   const [logs, setLogs] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [source, setSource] = useState('');
+  const [searchInput, setSearchInput] = useState('');
 
-  const fetchLogs = useCallback(async () => {
+  // Only fire the API call 400ms after the user stops typing
+  const debouncedSearch = useDebounce(searchInput, 400);
+
+  const fetchLogs = useCallback(async (query = '') => {
     try {
       setLoading(true);
       setError(null);
-      const result = await getLogs();
+      const result = await getLogs(query);
       setLogs(result.data);
       setSource(result.source);
     } catch (err) {
@@ -23,19 +29,25 @@ export default function App() {
     }
   }, []);
 
+  // Re-fetch whenever the debounced search value changes
   useEffect(() => {
-    fetchLogs();
-  }, [fetchLogs]);
+    fetchLogs(debouncedSearch);
+  }, [debouncedSearch, fetchLogs]);
 
   const handleCreate = async (logData) => {
     await createLog(logData);
-    await fetchLogs();
+    // After creating, re-fetch with current search term so list stays consistent
+    await fetchLogs(debouncedSearch);
   };
 
   const handleDelete = async (id) => {
     await deleteLog(id);
-    // Optimistic update: remove from state immediately
     setLogs((prev) => prev.filter((l) => l.id !== id));
+  };
+
+  const handleClear = () => {
+    setSearchInput('');
+    // debouncedSearch will update to '' → useEffect fires → fetchLogs('')
   };
 
   return (
@@ -53,17 +65,25 @@ export default function App() {
         <div className="log-section">
           <div className="log-section-header">
             <h2>Activity Log</h2>
-            {source && (
+            {source && !searchInput && (
               <span className={`source-badge ${source}`}>
                 {source === 'cache' ? '⚡ cached' : '🗄 live'}
               </span>
             )}
           </div>
 
-          {loading && <p className="state-msg">Loading...</p>}
+          <SearchBar
+            value={searchInput}
+            onChange={setSearchInput}
+            onClear={handleClear}
+            resultCount={logs.length}
+            isSearching={loading && !!searchInput}
+          />
+
+          {loading && !searchInput && <p className="state-msg">Loading...</p>}
           {error && <p className="state-msg error">Error: {error}</p>}
           {!loading && !error && (
-            <LogList logs={logs} onDelete={handleDelete} />
+            <LogList logs={logs} onDelete={handleDelete} searchTerm={debouncedSearch} />
           )}
         </div>
       </main>
