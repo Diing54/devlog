@@ -1,12 +1,11 @@
 # ---- Stage 1: install dependencies ----
-FROM node:20-alpine AS deps
+FROM node:20-bookworm-slim AS deps
 WORKDIR /app
 COPY package*.json ./
-# npm ci is faster and stricter than npm install (uses lockfile exactly)
 RUN npm ci --only=production
 
 # ---- Stage 2: production image ----
-FROM node:20-alpine AS production
+FROM node:20-bookworm-slim AS production
 WORKDIR /app
 
 # Copy only production node_modules from deps stage

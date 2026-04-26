@@ -1,5 +1,5 @@
 # ---- Stage 1: build the React app ----
-FROM node:20-alpine AS builder
+FROM node:20-bookworm-slim AS builder
 WORKDIR /app
 COPY package*.json ./
 RUN npm ci
@@ -8,6 +8,7 @@ COPY . .
 RUN npm run build
 
 # ---- Stage 2: serve with nginx ----
+# We can safely keep Alpine here because Nginx doesn't use Node.js
 FROM nginx:1.25-alpine AS production
 # Copy the built static files
 COPY --from=builder /app/dist /usr/share/nginx/html
