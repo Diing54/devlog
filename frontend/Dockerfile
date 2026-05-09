@@ -9,7 +9,7 @@ RUN npm run build
 
 # ---- Stage 2: serve with nginx ----
 # We can safely keep Alpine here because Nginx doesn't use Node.js
-FROM nginx:1.25-alpine AS production
+FROM nginx:1.30-alpine AS production
 # Copy the built static files
 COPY --from=builder /app/dist /usr/share/nginx/html
 # Copy our SPA-aware nginx config
