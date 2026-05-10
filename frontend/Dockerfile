@@ -1,5 +1,5 @@
 # ---- Stage 1: build the React app ----
-FROM node:20-bookworm-slim AS builder
+FROM node:24-bookworm-slim AS builder
 WORKDIR /app
 COPY package*.json ./
 RUN npm ci
