@@ -1,11 +1,11 @@
 # ---- Stage 1: install dependencies ----
-FROM node:20-bookworm-slim AS deps
+FROM node:24-bookworm-slim AS deps
 WORKDIR /app
 COPY package*.json ./
 RUN npm ci --only=production
 
 # ---- Stage 2: production image ----
-FROM node:20-bookworm-slim AS production
+FROM node:24-bookworm-slim AS production
 WORKDIR /app
 
 # Copy only production node_modules from deps stage
