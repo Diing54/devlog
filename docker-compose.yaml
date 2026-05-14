@@ -1,7 +1,7 @@
 services:
   # ── Nginx: public entry point ──────────────────────────────────
   devlog_nginx:
-    image: nginx:1.30-alpine
+    image: nginx:1.31-alpine
     container_name: devlog_nginx
     volumes:
       - ./nginx/nginx.conf:/etc/nginx/conf.d/default.conf:ro
