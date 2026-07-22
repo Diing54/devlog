@@ -3,6 +3,12 @@
 
 /* Design tokens */
 :root {
+  --radius: 6px;
+  --font: 'Courier New', 'Lucida Console', monospace;
+  --transition-theme: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+}
+
+:root[data-theme="dark"] {
   --bg:        #0d1117;
   --surface:   #161b22;
   --border:    #30363d;
@@ -14,22 +20,42 @@
   --tag-bg:    #1f2d3d;
   --tag-text:  #58a6ff;
   --tag-border:#1d4d7a;
-  --radius:    6px;
-  --font:      'Courier New', 'Lucida Console', monospace;
 }
 
-body { font-family: var(--font); background: var(--bg); color: var(--text); min-height: 100vh; }
+:root[data-theme="light"] {
+  --bg:        #ffffff;
+  --surface:   #f6f8fa;
+  --border:    #d0d7de;
+  --text:      #1f2328;
+  --text-muted:#656d76;
+  --accent:    #0969da;
+  --green:     #1a7f37;
+  --red:       #cf222e;
+  --tag-bg:    #ddf4ff;
+  --tag-text:  #0969da;
+  --tag-border:#b6e3ff;
+}
 
+body { font-family: var(--font); background: var(--bg); color: var(--text); min-height: 100vh; transition: var(--transition-theme); }
 /* Layout */
 .app   { max-width: 860px; margin: 0 auto; padding: 2rem 1rem; }
 .main  { display: flex; flex-direction: column; gap: 2rem; }
 
+/* Theme toggle */
+.theme-toggle        { background: var(--surface); border: 1px solid var(--border); border-radius: 50%; width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; color: var(--text-muted); cursor: pointer; transition: var(--transition-theme), transform 0.15s; flex-shrink: 0; }
+.theme-toggle:hover   { color: var(--accent); border-color: var(--accent); }
+.theme-toggle:active  { transform: scale(0.9); }
+
 /* Header */
+.header-inner  { display: flex; align-items: center; justify-content: space-between; }
 .header        { border-bottom: 1px solid var(--border); padding-bottom: 1.25rem; margin-bottom: 2rem; }
 .header h1     { font-size: 1.8rem; color: var(--accent); letter-spacing: -0.5px; }
 .header p      { color: var(--text-muted); margin-top: 0.25rem; font-size: 0.875rem; }
 .cursor        { animation: blink 1s step-end infinite; }
 @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0} }
+
+/* Smooth theme transitions on key surfaces */
+.log-form, .log-entry, .input { transition: var(--transition-theme); }
 
 /* Form */
 .log-form       { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 1.5rem; display: flex; flex-direction: column; gap: 0.75rem; }

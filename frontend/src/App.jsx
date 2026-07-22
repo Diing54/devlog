@@ -2,17 +2,19 @@ import { useState, useEffect, useCallback } from 'react';
 import LogForm from './components/LogForm';
 import LogList from './components/LogList';
 import SearchBar from './components/SearchBar';
+import ThemeToggle from './components/ThemeToggle';
 import { getLogs, createLog, deleteLog } from './api';
 import { useDebounce } from './hooks/useDebounce';
+import { useTheme } from './hooks/useTheme';
 
 export default function App() {
+  const { theme, toggleTheme } = useTheme();
   const [logs, setLogs] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [source, setSource] = useState('');
   const [searchInput, setSearchInput] = useState('');
 
-  // Only fire the API call 400ms after the user stops typing
   const debouncedSearch = useDebounce(searchInput, 400);
 
   const fetchLogs = useCallback(async (query = '') => {
@@ -29,14 +31,12 @@ export default function App() {
     }
   }, []);
 
-  // Re-fetch whenever the debounced search value changes
   useEffect(() => {
     fetchLogs(debouncedSearch);
   }, [debouncedSearch, fetchLogs]);
 
   const handleCreate = async (logData) => {
     await createLog(logData);
-    // After creating, re-fetch with current search term so list stays consistent
     await fetchLogs(debouncedSearch);
   };
 
@@ -45,17 +45,17 @@ export default function App() {
     setLogs((prev) => prev.filter((l) => l.id !== id));
   };
 
-  const handleClear = () => {
-    setSearchInput('');
-    // debouncedSearch will update to '' → useEffect fires → fetchLogs('')
-  };
+  const handleClear = () => setSearchInput('');
 
   return (
     <div className="app">
       <header className="header">
         <div className="header-inner">
-          <h1>DevLog<span className="cursor">_</span></h1>
-          <p>Personal DevOps Activity Tracker</p>
+          <div>
+            <h1>DevLog<span className="cursor">_</span></h1>
+            <p>Personal DevOps Activity Tracker</p>
+          </div>
+          <ThemeToggle theme={theme} onToggle={toggleTheme} />
         </div>
       </header>
 

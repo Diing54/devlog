@@ -8,14 +8,17 @@ services:
     depends_on:
       - frontend
       - backend
+    ports:
+      - "8080:80" # Maps local port 8080 to Nginx
     restart: unless-stopped
     networks:
-      - homelab_net # Connects to Cloudflare Tunnel
-      - devlog_internal   # Connects to backend/frontend
+      - devlog_internal
 
   # ── Frontend: React SPA served by nginx ────────────────────────
   frontend:
-    image: ghcr.io/diing54/devlog/frontend:latest
+    build: 
+      context: ./frontend
+      dockerfile: Dockerfile
     container_name: devlog_frontend
     restart: unless-stopped
     networks:
@@ -23,11 +26,14 @@ services:
 
   # ── Backend: Node.js REST API ───────────────────────────────────
   backend:
-    image: ghcr.io/diing54/devlog/backend:latest
+    build: 
+      context: ./backend
+      dockerfile: Dockerfile
     container_name: devlog_backend
     env_file: .env
     environment:
       - PORT=3000
+      - DATABASE_URL=postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}
     depends_on:
       postgres:
         condition: service_healthy
@@ -47,13 +53,13 @@ services:
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
       - POSTGRES_DB=${POSTGRES_DB}
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - postgres_data:/var/lib/postgresql
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
       interval: 5s
       timeout: 5s
-      retries: 10
-      start_period: 10s
+      retries: 20
+      start_period: 60s
     restart: unless-stopped
     networks:
       - devlog_internal
@@ -79,7 +85,5 @@ volumes:
   redis_data:
 
 networks:
-  homelab_net:
-    external: true
   devlog_internal:
     driver: bridge
