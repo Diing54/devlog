@@ -2,3 +2,9 @@ node_modules
 npm-debug.log
 .env
 *.test.js
+
+.git
+.github
+README.md
+docker-compose.yaml
+renovate.json
