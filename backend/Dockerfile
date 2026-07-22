@@ -1,21 +1,30 @@
 # ---- Stage 1: install dependencies ----
-FROM node:24-bookworm-slim AS deps
+FROM node:24-alpine AS deps
 WORKDIR /app
 COPY package*.json ./
-RUN npm ci --only=production
+# Replaced --only=production to fix the npm deprecation warning
+RUN npm ci --omit=dev
 
 # ---- Stage 2: production image ----
-FROM node:24-bookworm-slim AS production
+FROM node:24-alpine AS production
 WORKDIR /app
 
-# Copy only production node_modules from deps stage
+# Install dumb-init for proper signal handling (graceful shutdowns)
+RUN apk add --no-cache dumb-init
+
+# Enforce production configurations at the engine level
+ENV NODE_ENV=production
+
 COPY --from=deps /app/node_modules ./node_modules
-# Copy application source
 COPY src ./src
+
+# Ensure the node user owns the working directory
+RUN chown -R node:node /app
 
 EXPOSE 3000
 
-# Drop root privileges — run as the built-in 'node' user
+# Drop root privileges
 USER node
 
-CMD ["node", "src/index.js"]
+# Wrap the node process in dumb-init
+CMD ["dumb-init", "node", "src/index.js"]
