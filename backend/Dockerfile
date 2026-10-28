@@ -1,12 +1,12 @@
 # ---- Stage 1: install dependencies ----
-FROM node:24-alpine AS deps
+FROM node:26-alpine AS deps
 WORKDIR /app
 COPY package*.json ./
 # Replaced --only=production to fix the npm deprecation warning
 RUN npm ci --omit=dev
 
 # ---- Stage 2: production image ----
-FROM node:24-alpine AS production
+FROM node:26-alpine AS production
 WORKDIR /app
 
 # Install dumb-init for proper signal handling (graceful shutdowns)
