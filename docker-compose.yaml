@@ -45,7 +45,7 @@ services:
 
   # ── PostgreSQL: persistent storage ─────────────────────────────
   postgres:
-    image: postgres:18-alpine
+    image: postgres:19-alpine
     container_name: devlog_postgres
     env_file: .env
     environment:
